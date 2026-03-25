@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>طقس مصر - خلفيات متحركة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Tahoma', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* الخلفيات الديناميكية */
+        .weather-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            transition: all 0.5s ease;
+        }
+        
+        /* خلفية مشمسة */
+        .bg-sunny {
+            background: linear-gradient(135deg, #f9a825 0%, #ff6d00 100%);
+            animation: sunnyPulse 3s infinite alternate;
+        }
+        
+        @keyframes sunnyPulse {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.1); }
+        }
+        
+        .sun-rays {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 40%, rgba(255,215,0,0.3) 0%, transparent 70%);
+            animation: rotateRays 20s linear infinite;
+        }
+        
+        @keyframes rotateRays {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* خلفية مطر */
+        .bg-rain {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        }
+        
+        .rain-drop {
+            position: absolute;
+            background: rgba(255,255,255,0.6);
+            width: 2px;
+            height: 15px;
+            border-radius: 50%;
+            animation: rainFall linear infinite;
+        }
+        
+        @keyframes rainFall {
+            0% {
+                top: -10%;
+                opacity: 1;
+            }
+            100% {
+                top: 110%;
+                opacity: 0;
+            }
+        }
+        
+        /* خلفية غائمة */
+        .bg-cloudy {
+            background: linear-gradient(135deg, #4a5568 0%, #718096 100%);
+        }
+        
+        .cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.8);
+            border-radius: 80% 20% 85% 15% / 70% 60% 40% 30%;
+            filter: blur(8px);
+            animation: cloudFloat linear infinite;
+        }
+        
+        @keyframes cloudFloat {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100vw);
+            }
+        }
+        
+        /* خلفية ضباب */
+        .bg-fog {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+        
+        .fog-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.3);
+            filter: blur(20px);
+            animation: fogMove 8s infinite alternate;
+        }
+        
+        @keyframes fogMove {
+            0% {
+                transform: translateX(-10%);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(10%);
+                opacity: 0.8;
+            }
+        }
+        
+        /* خلفية عاصفة */
+        .bg-storm {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .lightning {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            animation: lightningFlash 0.2s infinite;
+            opacity: 0;
+        }
+        
+        @keyframes lightningFlash {
+            0%, 90%, 100% { opacity: 0; }
+            95% { opacity: 0.8; }
+            97% { opacity: 0.4; }
+        }
+        
+        /* خلفية رياح */
+        .bg-windy {
+            background: linear-gradient(135deg, #5d6d7e 0%, #34495e 100%);
+        }
+        
+        .wind-line {
+            position: absolute;
+            height: 2px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+            animation: windBlow linear infinite;
+        }
+        
+        @keyframes windBlow {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(100vw);
+                opacity: 0;
+            }
+        }
+        
+        /* المحتوى الرئيسي */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .weather-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border-radius: 40px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .location-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .city-name {
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            color: white;
+        }
+        
+        .date {
+            color: rgba(255,255,255,0.8);
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        .temp-main {
+            text-align: center;
+            margin: 20px 0;
+            color: white;
+        }
+        
+        .temp-value {
+            font-size: 72px;
+            font-weight: bold;
+        }
+        
+        .weather-desc {
+            font-size: 20px;
+            margin-top: 5px;
+            color: #ffeaa7;
+        }
+        
+        .details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .detail-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 10px;
+        }
+        
+        .forecast-section {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-right: 10px;
+            border-right: 3px solid #ffaa44;
+            color: white;
+        }
+        
+        .forecast-list {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 10px 0;
+        }
+        
+        .forecast-day {
+            min-width: 85px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 12px 8px;
+            text-align: center;
+            color: white;
+        }
+        
+        .medical-tips {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-right: 3px solid #ffaa44;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .search-box button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            background: #ffaa44;
+            color: #1e3c4a;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+        
+        .flood-alert {
+            background: rgba(200, 50, 50, 0.8);
+            border-right: 4px solid #ff4444;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { background: rgba(200, 50, 50, 0.8); }
+            50% { background: rgba(200, 50, 50, 1); }
+        }
+        
+        .tips-content ul {
+            padding-right: 20px;
+            margin-top: 8px;
+        }
+        
+        .tips-content li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="weatherBg" class="weather-bg"></div>
+    
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="cityInput" placeholder="🔍 اكتب اسم مدينة مصرية...">
+            <button onclick="searchCity()">بحث</button>
+            <button onclick="getMyLocation()">📍 موقعي</button>
+        </div>
+        
+        <div id="weatherContent">
+            <div class="loading">
+                <div style="font-size: 30px;">🌍</div>
+                <div>جاري تحديد موقعك...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const egyptCities = {
+            "القاهرة": { lat: 30.0444, lon: 31.2357 },
+            "الإسكندرية": { lat: 31.2001, lon: 29.9187 },
+            "الجيزة": { lat: 29.987, lon: 31.2118 },
+            "الأقصر": { lat: 25.6872, lon: 32.6396 },
+            "أسوان": { lat: 24.0889, lon: 32.8998 },
+            "شرم الشيخ": { lat: 27.9158, lon: 34.33 },
+            "الغردقة": { lat: 27.2574, lon: 33.8116 },
+            "بورسعيد": { lat: 31.2653, lon: 32.3019 },
+            "السويس": { lat: 29.9737, lon: 32.5263 }
+        };
+        
+        let currentAnimation = null;
+        
+        function translateWeather(code, isDay = true) {
+            const map = {
+                0: "☀️ مشمس", 1: "🌤️ قليل السحب", 2: "⛅ غائم جزئياً", 3: "☁️ غائم",
+                45: "🌫️ ضباب", 48: "🌫️ ضباب كثيف",
+                51: "🌧️ رذاذ خفيف", 53: "🌧️ رذاذ", 55: "🌧️ رذاذ كثيف",
+                61: "🌧️ مطر خفيف", 63: "🌧️ مطر", 65: "🌧️ مطر غزير",
+                80: "🌦️ زخات مطر", 81: "🌧️ زخات مطر", 82: "⛈️ زخات عنيفة",
+                95: "⛈️ عاصفة رعدية", 96: "⛈️ عاصفة رعدية", 99: "⛈️ عاصفة شديدة"
+            };
+            return map[code] || "🌡️ متغير";
+        }
+        
+        function getWeatherType(weatherCode, rainProb) {
+            if (weatherCode >= 95) return "storm";
+            if (weatherCode >= 80 || rainProb > 70) return "rain";
+            if (weatherCode >= 61 || rainProb > 40) return "rain";
+            if (weatherCode === 45 || weatherCode === 48) return "fog";
+            if (weatherCode === 3 || weatherCode === 2) return "cloudy";
+            if (weatherCode === 1) return "cloudy";
+            return "sunny";
+        }
+        
+        function changeBackground(weatherType, windSpeed = 0) {
+            const bgDiv = document.getElementById('weatherBg');
+            
+            // تنظيف الخلفية القديمة
+            if (currentAnimation) {
+                clearInterval(currentAnimation);
+            }
+            bgDiv.innerHTML = '';
+            bgDiv.className = 'weather-bg';
+            
+            switch(weatherType) {
+                case "sunny":
+                    bgDiv.classList.add('bg-sunny');
+                    bgDiv.innerHTML = '<div class="sun-rays"></div>';
+                    break;
+                    
+                case "rain":
+                    bgDiv.classList.add('bg-rain');
+                    // إضافة قطرات مطر
+                    for(let i = 0; i < 80; i++) {
+                        const drop = document.createElement('div');
+                        drop.className = 'rain-drop';
+                        drop.style.left = Math.random() * 100 + '%';
+                        drop.style.animationDuration = Math.random() * 1 + 0.5 + 's';
+                        drop.style.animationDelay = Math.random() * 5 + 's';
+                        bgDiv.appendChild(drop);
+                    }
+                    break;
+                    
+                case "cloudy":
+                    bgDiv.classList.add('bg-cloudy');
+                    // إضافة سحب
+                    for(let i = 0; i < 6; i++) {
+                        const cloud = document.createElement('div');
+                        cloud.className = 'cloud';
+                        cloud.style.width = (Math.random() * 200 + 100) + 'px';
+                        cloud.style.height = (Math.random() * 80 + 40) + 'px';
+                        cloud.style.top = Math.random() * 60 + '%';
+                        cloud.style.animationDuration = Math.random() * 40 + 20 + 's';
+                        cloud.style.animationDelay = Math.random() * 10 + 's';
+                        bgDiv.appendChild(cloud);
+                    }
+                    break;
+                    
+                case "fog":
+                    bgDiv.classList.add('bg-fog');
+                    for(let i = 0; i < 3; i++) {
+                        const fog = document.createElement('div');
+                        fog.className = 'fog-layer';
+                        fog.style.animationDelay = i * 2 + 's';
+                        bgDiv.appendChild(fog);
+                    }
+                    break;
+                    
+                case "storm":
+                    bgDiv.classList.add('bg-storm');
+                    const lightning = document.createElement('div');
+                    lightning.className = 'lightning';
+                    bgDiv.appendChild(lightning);
+                    // برق متقطع
+                    setInterval(() => {
+                        lightning.style.animation = 'none';
+                        setTimeout(() => {
+                            lightning.style.animation = 'lightningFlash 0.2s infinite';
+                        }, 10);
+                    }, Math.random() * 3000 + 2000);
+                    break;
+                    
+                default:
+                    bgDiv.classList.add('bg-sunny');
+                    bgDiv.innerHTML = '<div class="sun-rays"></div>';
+            }
+            
+            // إضافة خطوط الرياح إذا كانت الرياح قوية
+            if (windSpeed > 15) {
+                for(let i = 0; i < 20; i++) {
+                    const wind = document.createElement('div');
+                    wind.className = 'wind-line';
+                    wind.style.width = (Math.random() * 100 + 50) + 'px';
+                    wind.style.top = Math.random() * 100 + '%';
+                    wind.style.animationDuration = Math.random() * 2 + 1 + 's';
+                    wind.style.animationDelay = Math.random() * 5 + 's';
+                    bgDiv.appendChild(wind);
+                }
+            }
+        }
+        
+        function getArabicDay(date) {
+            const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            return days[date.getDay()];
+        }
+        
+        function getMedicalTips(temp, humidity, windSpeed, rainProb, weatherCode) {
+            let tips = [];
+            
+            if (rainProb > 70 || weatherCode === 65 || weatherCode === 82) {
+                tips.push("⚠️ تحذير من السيول! تجنب القيادة في المناطق المنخفضة والوديان");
+                tips.push("🚨 ابق في مكان آمن حتى انتهاء الموجة المطرية");
+            }
+            
+            if (temp > 38) {
+                tips.push("🔥 موجة حر شديدة: لا تخرج إلا للضرورة، اشرب ماء كل 30 دقيقة");
+            } else if (temp > 32) {
+                tips.push("☀️ طقس حار: اشرب 3-4 لتر ماء، تجنب الشمس 11ص-3م");
+            } else if (temp < 10) {
+                tips.push("❄️ طقس بارد جداً: ارتدِ ملابس ثقيلة، اشرب مشروبات دافئة");
+            }
+            
+            if (humidity > 80) {
+                tips.push("💧 رطوبة عالية: استخدم المكيف، اشرب ماء بارد");
+            }
+            
+            if (windSpeed > 25) {
+                tips.push("💨 رياح قوية: تجنب الوقوف تحت اللوحات الإعلانية");
+            }
+            
+            if (tips.length === 0) {
+                tips.push("🌿 طقس معتدل: فرصة مناسبة للتنزه وممارسة الرياضة");
+            }
+            
+            return tips;
+        }
+        
+        async function fetchWeather(lat, lon, cityName = "") {
+            const content = document.getElementById('weatherContent');
+            content.innerHTML = `<div class="loading"><div>🌍 جلب بيانات الطقس...</div></div>`;
+            
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`;
+                
+                const resp = await fetch(url);
+                const data = await resp.json();
+                
+                if (!data.current) throw new Error();
+                
+                const temp = Math.round(data.current.temperature_2m);
+                const humidity = data.current.relative_humidity_2m;
+                const wind = Math.round(data.current.wind_speed_10m);
+                const weatherCode = data.current.weather_code;
+                const rainProb = data.daily.precipitation_probability_max[0] || 0;
+                const weatherDesc = translateWeather(weatherCode);
+                
+                // تغيير الخلفية حسب الطقس
+                const weatherType = getWeatherType(weatherCode, rainProb);
+                changeBackground(weatherType, wind);
+                
+                let forecastHtml = '';
+                for (let i = 0; i < data.daily.time.length; i++) {
+                    const date = new Date(data.daily.time[i]);
+                    const maxT = Math.round(data.daily.temperature_2m_max[i]);
+                    const minT = Math.round(data.daily.temperature_2m_min[i]);
+                    const rain = data.daily.precipitation_probability_max[i];
+                    const icon = translateWeather(data.daily.weather_code[i]);
+                    
+                    forecastHtml += `
+                        <div class="forecast-day">
+                            <div>${getArabicDay(date)}</div>
+                            <div style="font-size:24px;">${icon.split(' ')[0]}</div>
+                            <div>${maxT}° / ${minT}°</div>
+                            ${rain > 0 ? `<div style="font-size:11px;">🌧️ ${rain}%</div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                const medicalTips = getMedicalTips(temp, humidity, wind, rainProb, weatherCode);
+                const hasFlood = medicalTips.some(t => t.includes("السيول"));
+                const cityDisplay = cityName || `${lat.toFixed(1)}, ${lon.toFixed(1)}`;
+                const today = new Date();
+                
+                content.innerHTML = `
+                    <div class="weather-card">
+                        <div class="location-section">
+                            <div class="city-name">📍 ${cityDisplay} <span>🇪🇬 مصر</span></div>
+                            <div class="date">${getArabicDay(today)} ${today.getDate()} ${today.toLocaleString('ar', { month: 'long' })}</div>
+                        </div>
+                        
+                        <div class="temp-main">
+                            <div class="temp-value">${temp}<span style="font-size:24px;">°C</span></div>
+                            <div class="weather-desc">${weatherDesc}</div>
+                            <div>🌡️ يشعر بـ ${Math.round(data.current.apparent_temperature)}°</div>
+                        </div>
+                        
+                        <div class="details">
+                            <div class="detail-item">
+                                <div>💧 الرطوبة</div>
+                                <div style="font-size:20px;">${humidity}%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div>💨 الرياح</div>
+                                <div style="font-size:20px;">${wind} كم/س</div>
+                            </div>
+                            <div class="detail-item">
+                                <div>🌡️ العظمى</div>
+                                <div style="font-size:20px;">${Math.round(data.daily.temperature_2m_max[0])}°</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${hasFlood ? `<div class="flood-alert"><div style="font-size:20px;">⚠️ تحذير من السيول ⚠️</div><div>تجنب القيادة والبقاء في مكان آمن</div></div>` : ''}
+                    
+                    <div class="forecast-section">
+                        <div class="section-title">📅 توقعات الأسبوع القادم</div>
+                        <div class="forecast-list">${forecastHtml}</div>
+                    </div>
+                    
+                    <div class="medical-tips">
+                        <div class="section-title" style="border-right-color:#ffaa44;">🏥 نصائح طبية</div>
+                        <div class="tips-content">
+                            <ul>${medicalTips.map(t => `<li>${t}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (err) {
+                content.innerHTML = `<div class="loading">❌ خطأ في جلب البيانات</div>`;
+            }
+        }
+        
+        function searchCity() {
+            const input = document.getElementById('cityInput').value.trim();
+            if (!input) return alert("اكتب اسم مدينة");
+            
+            for (let [city, coords] of Object.entries(egyptCities)) {
+                if (input.includes(city) || city.includes(input)) {
+                    fetchWeather(coords.lat, coords.lon, city);
+                    return;
+                }
+            }
+            alert(`"${input}" غير موجود\nالمدن المتاحة: القاهرة، الإسكندرية، الأقصر، أسوان، شرم الشيخ، الغردقة`);
+        }
+        
+        function getMyLocation() {
+            if (!navigator.geolocation) return alert("المتصفح لا يدعم تحديد الموقع");
+            document.getElementById('weatherContent').innerHTML = `<div class="loading"><div>📍 جاري تحديد موقعك...</div></div>`;
+            navigator.geolocation.getCurrentPosition(
+                (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "موقعي الحالي"),
+                () => alert("لم نتمكن من تحديد موقعك")
+            );
+        }
+        
+        window.onload = getMyLocation;
+    </script>
+</body>
+</html>

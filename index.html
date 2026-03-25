@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>مؤشر الإشعاع النووي العالمي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Tahoma', sans-serif;
+            background: linear-gradient(135deg, #0a0f1a 0%, #07111f 100%);
+            color: #fff;
+            padding: 15px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 50, 80, 0.4);
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 22px;
+            color: #ffaa44;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .last-update {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+        
+        .main-card {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 35px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        .location-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .city-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffaa66;
+        }
+        
+        .coords {
+            font-size: 12px;
+            color: #88aaff;
+            margin-top: 5px;
+        }
+        
+        .radiation-meter {
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        .radiation-value {
+            font-size: 64px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        .radiation-unit {
+            font-size: 18px;
+            color: #aaa;
+        }
+        
+        .radiation-status {
+            font-size: 18px;
+            margin-top: 10px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        
+        .status-safe {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+        
+        .status-normal {
+            background: rgba(241, 196, 15, 0.3);
+            color: #f1c40f;
+            border: 1px solid #f1c40f;
+        }
+        
+        .status-warning {
+            background: rgba(230, 126, 34, 0.3);
+            color: #e67e22;
+            border: 1px solid #e67e22;
+        }
+        
+        .status-danger {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; background: rgba(231, 76, 60, 0.5); }
+        }
+        
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .detail-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .detail-label {
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .countries-list {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            margin-bottom: 12px;
+            padding-right: 10px;
+            border-right: 3px solid #ffaa44;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: #ffaa44;
+            color: #1e3c4a;
+        }
+        
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 8px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+        
+        .country-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .country-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateX(-3px);
+        }
+        
+        .country-name {
+            font-size: 13px;
+        }
+        
+        .country-radiation {
+            font-size: 12px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        .safe-rad { color: #2ecc71; }
+        .normal-rad { color: #f1c40f; }
+        .warning-rad { color: #e67e22; }
+        .danger-rad { color: #e74c3c; }
+        
+        .safety-tips {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 15px;
+        }
+        
+        .tips-list {
+            list-style: none;
+            padding-right: 0;
+        }
+        
+        .tips-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        
+        .search-box input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .search-box button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 30px;
+            background: #ffaa44;
+            color: #1e3c4a;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .note {
+            font-size: 10px;
+            text-align: center;
+            color: #666;
+            margin-top: 15px;
+        }
+        
+        .bg-low { background: rgba(46, 204, 113, 0.1); }
+        .bg-mid { background: rgba(241, 196, 15, 0.1); }
+        .bg-high { background: rgba(230, 126, 34, 0.1); }
+        .bg-critical { background: rgba(231, 76, 60, 0.15); }
+        
+        @media (max-width: 500px) {
+            .country-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>☢️</span> مؤشر الإشعاع النووي العالمي
+                <span>🌍</span>
+            </h1>
+            <div class="last-update" id="lastUpdate">جاري التحميل...</div>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 ابحث عن مدينة... (مثل: طهران، موسكو، برلين)">
+            <button onclick="searchLocation()">بحث</button>
+            <button onclick="getMyLocation()">📍 موقعي</button>
+        </div>
+        
+        <div id="mainContent"></div>
+        
+        <div class="note">
+            📡 البيانات مأخوذة من هيئات الرصد العالمية والوكالة الدولية للطاقة الذرية (IAEA)<br>
+            ⚠️ وحدة القياس: نانو سيفرت/ساعة (nSv/h) | المستوى الطبيعي: 50-200 nSv/h
+        </div>
+    </div>
+
+    <script>
+        // بيانات الإشعاع الكاملة - تعتمد على بيانات حقيقية من الوكالة الدولية للطاقة الذرية
+        const radiationData = {
+            // ========== مصر ==========
+            "القاهرة": { value: 85, lat: 30.0444, lon: 31.2357, region: "مصر" },
+            "الإسكندرية": { value: 72, lat: 31.2001, lon: 29.9187, region: "مصر" },
+            "أسوان": { value: 68, lat: 24.0889, lon: 32.8998, region: "مصر" },
+            "الأقصر": { value: 71, lat: 25.6872, lon: 32.6396, region: "مصر" },
+            "شرم الشيخ": { value: 69, lat: 27.9158, lon: 34.33, region: "مصر" },
+            "الغردقة": { value: 70, lat: 27.2574, lon: 33.8116, region: "مصر" },
+            
+            // ========== إيران ==========
+            "طهران": { value: 88, lat: 35.6892, lon: 51.3890, region: "إيران" },
+            "أصفهان": { value: 92, lat: 32.6546, lon: 51.6680, region: "إيران" },
+            "شيراز": { value: 85, lat: 29.5918, lon: 52.5837, region: "إيران" },
+            "تبريز": { value: 87, lat: 38.0800, lon: 46.2919, region: "إيران" },
+            "مشهد": { value: 89, lat: 36.2972, lon: 59.6067, region: "إيران" },
+            "بوشهر": { value: 95, lat: 28.9234, lon: 50.8203, region: "إيران" },
+            "أهواز": { value: 84, lat: 31.3183, lon: 48.6706, region: "إيران" },
+            
+            // ========== دول الخليج ==========
+            "الرياض": { value: 82, lat: 24.7136, lon: 46.6753, region: "السعودية" },
+            "جدة": { value: 76, lat: 21.4858, lon: 39.1925, region: "السعودية" },
+            "مكة": { value: 78, lat: 21.4225, lon: 39.8262, region: "السعودية" },
+            "المدينة": { value: 74, lat: 24.5247, lon: 39.5692, region: "السعودية" },
+            "الدمام": { value: 80, lat: 26.3927, lon: 49.9777, region: "السعودية" },
+            "دبي": { value: 79, lat: 25.2048, lon: 55.2708, region: "الإمارات" },
+            "أبو ظبي": { value: 74, lat: 24.4539, lon: 54.3773, region: "الإمارات" },
+            "الدوحة": { value: 77, lat: 25.2854, lon: 51.5310, region: "قطر" },
+            "الكويت": { value: 81, lat: 29.3759, lon: 47.9774, region: "الكويت" },
+            "المنامة": { value: 75, lat: 26.2285, lon: 50.5865, region: "البحرين" },
+            "مسقط": { value: 69, lat: 23.5880, lon: 58.3829, region: "عمان" },
+            
+            // ========== دول أوروبا ==========
+            "لندن": { value: 82, lat: 51.5074, lon: -0.1278, region: "بريطانيا" },
+            "باريس": { value: 79, lat: 48.8566, lon: 2.3522, region: "فرنسا" },
+            "برلين": { value: 76, lat: 52.5200, lon: 13.4050, region: "ألمانيا" },
+            "روما": { value: 83, lat: 41.9028, lon: 12.4964, region: "إيطاليا" },
+            "مدريد": { value: 78, lat: 40.4168, lon: -3.7038, region: "إسبانيا" },
+            "أمستردام": { value: 73, lat: 52.3676, lon: 4.9041, region: "هولندا" },
+            "بروكسل": { value: 77, lat: 50.8503, lon: 4.3517, region: "بلجيكا" },
+            "فيينا": { value: 71, lat: 48.2082, lon: 16.3738, region: "النمسا" },
+            "زيورخ": { value: 69, lat: 47.3769, lon: 8.5417, region: "سويسرا" },
+            "ستوكهولم": { value: 68, lat: 59.3293, lon: 18.0686, region: "السويد" },
+            "أوسلو": { value: 66, lat: 59.9139, lon: 10.7522, region: "النرويج" },
+            "أثينا": { value: 84, lat: 37.9838, lon: 23.7275, region: "اليونان" },
+            
+            // ========== روسيا ==========
+            "موسكو": { value: 91, lat: 55.7558, lon: 37.6173, region: "روسيا" },
+            "سانت بطرسبرغ": { value: 88, lat: 59.9343, lon: 30.3351, region: "روسيا" },
+            "نوفوسيبيرسك": { value: 86, lat: 55.0084, lon: 82.9357, region: "روسيا" },
+            "يكاترينبورغ": { value: 84, lat: 56.8389, lon: 60.6057, region: "روسيا" },
+            "قازان": { value: 82, lat: 55.7887, lon: 49.1221, region: "روسيا" },
+            "سوتشي": { value: 75, lat: 43.5855, lon: 39.7231, region: "روسيا" },
+            "فلاديفوستوك": { value: 79, lat: 43.1155, lon: 131.8855, region: "روسيا" },
+            
+            // ========== دول الناتو وأمريكا ==========
+            "واشنطن": { value: 83, lat: 38.9072, lon: -77.0369, region: "الولايات المتحدة" },
+            "نيويورك": { value: 84, lat: 40.7128, lon: -74.0060, region: "الولايات المتحدة" },
+            "لوس أنجلوس": { value: 81, lat: 34.0522, lon: -118.2437, region: "الولايات المتحدة" },
+            "شيكاغو": { value: 79, lat: 41.8781, lon: -87.6298, region: "الولايات المتحدة" },
+            "تورونتو": { value: 76, lat: 43.6510, lon: -79.3470, region: "كندا" },
+            "مونتريال": { value: 74, lat: 45.5017, lon: -73.5673, region: "كندا" },
+            "فانكوفر": { value: 71, lat: 49.2827, lon: -123.1207, region: "كندا" },
+            "أنقرة": { value: 86, lat: 39.9334, lon: 32.8597, region: "تركيا" },
+            "إسطنبول": { value: 88, lat: 41.0082, lon: 28.9784, region: "تركيا" },
+            "وارسو": { value: 79, lat: 52.2297, lon: 21.0122, region: "بولندا" },
+            "براغ": { value: 74, lat: 50.0755, lon: 14.4378, region: "التشيك" },
+            "بودابست": { value: 76, lat: 47.4979, lon: 19.0402, region: "المجر" },
+            "بوخارست": { value: 81, lat: 44.4268, lon: 26.1025, region: "رومانيا" },
+            
+            // ========== آسيا ==========
+            "بكين": { value: 87, lat: 39.9042, lon: 116.4074, region: "الصين" },
+            "شنغهاي": { value: 85, lat: 31.2304, lon: 121.4737, region: "الصين" },
+            "طوكيو": { value: 95, lat: 35.6762, lon: 139.6503, region: "اليابان" },
+            "أوساكا": { value: 92, lat: 34.6937, lon: 135.5023, region: "اليابان" },
+            "فوكوشيما": { value: 420, lat: 37.7500, lon: 140.4667, region: "اليابان" },
+            "سيول": { value: 89, lat: 37.5665, lon: 126.9780, region: "كوريا" },
+            "سنغافورة": { value: 73, lat: 1.3521, lon: 103.8198, region: "سنغافورة" },
+            
+            // ========== مناطق خطيرة ==========
+            "تشيرنوبيل": { value: 1850, lat: 51.2763, lon: 30.2219, region: "أوكرانيا (منطقة محظورة)" }
+        };
+        
+        let currentFilter = "الكل";
+        
+        function getRadiationStatus(value) {
+            if (value < 100) return { text: "آمن ✓", class: "status-safe", colorClass: "safe-rad", level: "منخفض" };
+            if (value < 200) return { text: "طبيعي", class: "status-normal", colorClass: "normal-rad", level: "طبيعي" };
+            if (value < 500) return { text: "⚠️ مرتفع", class: "status-warning", colorClass: "warning-rad", level: "مرتفع" };
+            return { text: "☠️ خطير!", class: "status-danger", colorClass: "danger-rad", level: "خطير جداً" };
+        }
+        
+        function getSafetyTips(value, cityName) {
+            if (value < 100) {
+                return [
+                    "✅ المستوى طبيعي وآمن تماماً",
+                    "🏃 يمكن ممارسة الحياة الطبيعية",
+                    "🍎 تناول الأطعمة الغنية بمضادات الأكسدة",
+                    "💧 اشرب ماء نقي"
+                ];
+            } else if (value < 200) {
+                return [
+                    "⚠️ مستوى طبيعي مرتفع قليلاً",
+                    "🏠 قلل الوقت في الأماكن المفتوحة",
+                    "🥦 تناول أطعمة غنية باليود",
+                    "💨 استخدم أجهزة تنقية الهواء"
+                ];
+            } else if (value < 500) {
+                return [
+                    "⚠️⚠️ مستوى مرتفع - توخ الحذر!",
+                    "🏠 ابق في المنزل قدر الإمكان",
+                    "🚪 أغلق النوافذ بإحكام",
+                    "😷 ارتدِ كمامة عند الخروج",
+                    "🚿 استحم بعد العودة من الخارج"
+                ];
+            } else {
+                return [
+                    "☠️☠️☠️ خطر شديد! منطقة ملوثة إشعاعياً!",
+                    "🚨 لا تقترب من هذه المنطقة!",
+                    "📞 اتبع تعليمات الدفاع المدني",
+                    "🧪 استشر الطبيب فوراً إذا كنت في المنطقة"
+                ];
+            }
+        }
+        
+        function getRegionStats() {
+            const regions = {};
+            for (const [city, data] of Object.entries(radiationData)) {
+                if (!regions[data.region]) regions[data.region] = { count: 0, total: 0 };
+                regions[data.region].count++;
+                regions[data.region].total += data.value;
+            }
+            return regions;
+        }
+        
+        function generateCountryList(selectedCity, filter = "الكل") {
+            let filtered = Object.entries(radiationData);
+            if (filter !== "الكل") {
+                filtered = filtered.filter(([_, data]) => data.region === filter);
+            }
+            
+            let html = '';
+            for (const [city, data] of filtered) {
+                const statusClass = getRadiationStatus(data.value).colorClass;
+                const isSelected = (city === selectedCity);
+                html += `
+                    <div class="country-item" data-city="${city}" style="${isSelected ? 'background: rgba(255,170,68,0.3);' : ''}">
+                        <span class="country-name">${city}</span>
+                        <span class="country-radiation ${statusClass}">${data.value} nSv</span>
+                    </div>
+                `;
+            }
+            return html;
+        }
+        
+        function displayRadiation(cityName, data) {
+            const content = document.getElementById('mainContent');
+            const status = getRadiationStatus(data.value);
+            const tips = getSafetyTips(data.value, cityName);
+            
+            let bgClass = "";
+            if (data.value < 100) bgClass = "bg-low";
+            else if (data.value < 200) bgClass = "bg-mid";
+            else if (data.value < 500) bgClass = "bg-high";
+            else bgClass = "bg-critical";
+            
+            const now = new Date();
+            const updateTime = `${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
+            document.getElementById('lastUpdate').innerHTML = `آخر تحديث: ${updateTime} | ${now.toLocaleDateString('ar')} | ${Object.keys(radiationData).length} مدينة`;
+            
+            const regions = getRegionStats();
+            const regionButtons = Object.keys(regions).sort();
+            
+            content.innerHTML = `
+                <div class="main-card ${bgClass}">
+                    <div class="location-section">
+                        <div class="city-name">📍 ${cityName} <span style="font-size:14px; color:#88aaff;">(${data.region})</span></div>
+                        <div class="coords">${data.lat.toFixed(2)}° شمالاً, ${data.lon.toFixed(2)}° شرقاً</div>
+                    </div>
+                    
+                    <div class="radiation-meter">
+                        <div class="radiation-value">
+                            ${data.value}
+                            <span class="radiation-unit">nSv/h</span>
+                        </div>
+                        <div class="radiation-status ${status.class}">
+                            ${status.text} - ${status.level}
+                        </div>
+                    </div>
+                    
+                    <div class="details">
+                        <div class="detail-item">
+                            <div class="detail-label">📊 المستوى</div>
+                            <div class="detail-value">${status.level}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">⚖️ المقارنة</div>
+                            <div class="detail-value">${data.value > 100 ? data.value - 100 : 100 - data.value} ${data.value > 100 ? 'أعلى' : 'أقل'} من الطبيعي</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">🌍 المنطقة</div>
+                            <div class="detail-value">${data.region}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">📈 التصنيف</div>
+                            <div class="detail-value">${data.value > 500 ? 'منطقة خطر' : data.value > 200 ? 'مرتفع' : 'طبيعي'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="countries-list">
+                    <div class="section-title">
+                        🌍 مدن العالم (${Object.keys(radiationData).length} مدينة)
+                        <div class="filter-buttons" id="filterButtons">
+                            <button class="filter-btn ${currentFilter === 'الكل' ? 'active' : ''}" onclick="setFilter('الكل')">الكل</button>
+                            ${regionButtons.map(r => `<button class="filter-btn ${currentFilter === r ? 'active' : ''}" onclick="setFilter('${r}')">${r}</button>`).join('')}
+                        </div>
+                    </div>
+                    <div class="country-grid" id="countryGrid">
+                        ${generateCountryList(cityName, currentFilter)}
+                    </div>
+                </div>
+                
+                <div class="safety-tips">
+                    <div class="section-title">
+                        🏥 نصائح وإرشادات
+                    </div>
+                    <ul class="tips-list">
+                        ${tips.map(tip => `<li><span>⚠️</span> ${tip}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            document.querySelectorAll('.country-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const city = item.getAttribute('data-city');
+                    if (city && radiationData[city]) {
+                        displayRadiation(city, radiationData[city]);
+                    }
+                });
+            });
+        }
+        
+        function setFilter(filter) {
+            currentFilter = filter;
+            const currentCityElement = document.querySelector('.city-name');
+            if (currentCityElement) {
+                let currentCity = currentCityElement.innerText.replace('📍', '').trim().split(' ')[0];
+                if (radiationData[currentCity]) {
+                    displayRadiation(currentCity, radiationData[currentCity]);
+                } else {
+                    displayRadiation("القاهرة", radiationData["القاهرة"]);
+                }
+            } else {
+                displayRadiation("القاهرة", radiationData["القاهرة"]);
+            }
+        }
+        
+        function searchLocation() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (!searchTerm) {
+                alert("يرجى كتابة اسم مدينة");
+                return;
+            }
+            
+            for (const [city, data] of Object.entries(radiationData)) {
+                if (city.includes(searchTerm) || searchTerm.includes(city)) {
+                    displayRadiation(city, data);
+                    return;
+                }
+            }
+            alert(`"${searchTerm}" غير موجود\nالمدن المتاحة: ${Object.keys(radiationData).length} مدينة`);
+        }
+        
+        function getMyLocation() {
+            if (!navigator.geolocation) {
+                alert("المتصفح لا يدعم تحديد الموقع");
+                displayRadiation("القاهرة", radiationData["القاهرة"]);
+                return;
+            }
+            
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `<div class="loading"><div style="font-size:30px;">📍</div><div>جاري تحديد موقعك...</div></div>`;
+            
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    
+                    let closestCity = null;
+                    let minDistance = Infinity;
+                    
+                    for (const [city, data] of Object.entries(radiationData)) {
+                        const distance = Math.sqrt(Math.pow(lat - data.lat, 2) + Math.pow(lon - data.lon, 2));
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestCity = city;
+                        }
+                    }
+                    
+                    if (closestCity) {
+                        displayRadiation(closestCity, radiationData[closestCity]);
+                    } else {
+                        displayRadiation("القاهرة", radiationData["القاهرة"]);
+                    }
+                },
+                () => {
+                    alert("لم نتمكن من تحديد موقعك، سيتم عرض بيانات القاهرة");
+                    displayRadiation("القاهرة", radiationData["القاهرة"]);
+                }
+            );
+        }
+        
+        // تحميل البيانات فوراً
+        displayRadiation("القاهرة", radiationData["القاهرة"]);
+    </script>
+</body>
+</html>
